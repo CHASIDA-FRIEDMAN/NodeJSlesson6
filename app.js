@@ -7,6 +7,12 @@ import addCurrentDate from './middleware/addDate.middleware.js';
 import printGetRequests from './middleware/printDate.middleware.js';
 import errorHandler from './middleware/errorHandler.middleware.js';
 import notFound from './middleware/notFound.middleware.js';
+import connectDB from './config/db.js';
+import dotenv from 'dotenv';
+
+dotenv.config(); // טוען את המשתנים מהקובץ .env
+
+connectDB(); // חיבור למסד הנתונים
 
 const app = express();
 
@@ -34,7 +40,7 @@ app.use(notFound);       // אם לא נמצא מסלול
 app.use(errorHandler);   // כל שגיאה אחרת
 
 // הפעלת השרת
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // אם לא הוגדר פורט במשתנים הסביבתיים, השתמש ב-5000
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 }
