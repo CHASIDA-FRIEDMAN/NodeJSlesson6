@@ -13,14 +13,17 @@ export const getAllBooks = async (req, res, next) => {
 }
 
 // Get a book by ID
-export const getBookById = (req, res, next) => {
-    const bookId = parseInt(req.params.id);
-    const book = books.find(b => b.id === bookId);
-    if (!book) {
-        res.status(404);
-        return next(new Error('Book not found')) // העברת השגיאה למידלוור
+export const getBookById = async (req, res, next) => {
+
+    try {
+        const book = await Book.findById(req.params.id); // שימי לב - לא parseInt
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.json(book);
+    } catch (err) {
+        next(err);
     }
-    res.json(book);
 }
 
 // Add a new book
@@ -50,31 +53,33 @@ export const addBook = async (req, res, next) => {
 
 
 // Update an existing book
-export const updateBook = (req, res, next) => {
-    const bookId = parseInt(req.params.id);
-    const book = books.find(b => b.id === bookId);
-    if (!book) {
-        res.status(404)
-        return next(new Error('Book not found')) // העברת השגיאה למידלוור
+
+export const updateBook = async (req, res, next) => {
+    try {
+        const { name, price } = req.body;
+        const updatedBook = await Book.findByIdAndUpdate(
+            req.params.id,
+            { $set: { name, price } },
+            { new: true, runValidators: true }
+        );
+        if (!updatedBook) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.json(updatedBook);
+    } catch (err) {
+        next(err);
     }
-    const { name, price } = req.body;
-    if (name !== undefined) {
-        book.name = name;
-    }
-    if (price !== undefined) {
-        book.price = price;
-    }
-    res.json(book);
-}
+};
 
 // Delete a book
-export const deleteBook = (req, res, next) => {
-    const bookId = parseInt(req.params.id);
-    const bookIndex = books.findIndex(b => b.id === bookId);
-    if (bookIndex === -1) {
-        res.status(404)
-        return next(new Error('Book not found')) // העברת השגיאה למידלוור
+export const deleteBook = async (req, res, next) => {
+    try {
+        const deletedBook = await Book.findByIdAndDelete(req.params.id);
+        if (!deletedBook) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        res.status(204).send(); // אין תוכן
+    } catch (err) {
+        next(err);
     }
-    books.splice(bookIndex, 1);
-    res.status(204).send();
-}
+};
