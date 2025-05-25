@@ -1,5 +1,6 @@
 import express from 'express';
-import { signIn,signUp,getAllUsers } from '../controllers/user.controller.js';
+import { signIn,signUp,getAllUsers ,updateUser} from '../controllers/user.controller.js';
+import { checkAuth,checkAdmin } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
@@ -12,6 +13,9 @@ router.post('/signup',signUp);
 router.post('/signin', signIn);
 
 // Get all users
-router.get('/', getAllUsers);  // הוספת נתיב לקבלת כל המשתמשים
+router.get('/',checkAuth, checkAdmin,getAllUsers);  // הוספת נתיב לקבלת כל המשתמשים
+
+router.put('/:id', checkAuth, updateUser); // רק משתמש מחובר יכול לעדכן
+
 
 export default router;
